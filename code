@@ -1,0 +1,67 @@
+import { useState } from "react";
+
+export default function PowerCalculator() {
+  const [n, setN] = useState(1); // ค่าคงที่ Rev/kWh
+  const [N, setNValue] = useState(0); // จำนวนรอบ
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [intervalId, setIntervalId] = useState(null);
+  const [kW, setKW] = useState(null);
+
+  const startTimer = () => {
+    setIsRunning(true);
+    setTime(0);
+    const id = setInterval(() => {
+      setTime((prevTime) => prevTime + 1);
+    }, 1000);
+    setIntervalId(id);
+  };
+
+  const stopTimer = () => {
+    clearInterval(intervalId);
+    setIsRunning(false);
+    calculateKW();
+  };
+
+  const calculateKW = () => {
+    if (time > 0 && n > 0) {
+      const kWh = N / n;
+      const calculatedKW = (3600 * kWh) / time;
+      setKW(calculatedKW.toFixed(3));
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">เครื่องคำนวณกำลังไฟฟ้า (kW)</h1>
+      <label className="mb-2">ค่าคงที่ของมิเตอร์ (Rev/kWh):</label>
+      <input
+        type="number"
+        value={n}
+        onChange={(e) => setN(Number(e.target.value))}
+        className="p-2 border rounded mb-4"
+      />
+
+      <label className="mb-2">จำนวนรอบที่มิเตอร์หมุน:</label>
+      <input
+        type="number"
+        value={N}
+        onChange={(e) => setNValue(Number(e.target.value))}
+        className="p-2 border rounded mb-4"
+      />
+
+      <p>เวลาที่จับ: {time} วินาที</p>
+      <div className="flex space-x-4 mt-4">
+        {!isRunning ? (
+          <button onClick={startTimer} className="px-4 py-2 bg-green-500 text-white rounded">Start</button>
+        ) : (
+          <button onClick={stopTimer} className="px-4 py-2 bg-red-500 text-white rounded">Stop</button>
+        )}
+      </div>
+
+      {kW !== null && (
+        <p className="mt-4 text-xl font-bold">ค่า kW: {kW} kW</p>
+      )}
+    </div>
+  );
+}
